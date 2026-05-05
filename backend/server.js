@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -22,6 +23,16 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 const frontendDir = path.join(__dirname, '..', 'frontend');
+const frontendIndex = path.join(frontendDir, 'index.html');
+
+function sendFrontendIndex(req, res, next) {
+  if (!fs.existsSync(frontendIndex)) {
+    return fail(res, `Frontend file not found at ${frontendIndex}`, 500);
+  }
+  return res.sendFile(frontendIndex, err => {
+    if (err) next(err);
+  });
+}
 
 app.use(helmet({
   contentSecurityPolicy: false
@@ -40,6 +51,18 @@ app.use('/api/auth', rateLimit({
 }));
 
 app.use(express.static(frontendDir));
+
+app.get('/healthz', (req, res) => {
+  res.json({
+    success: true,
+    service: 'EHMR AI',
+    frontendDir,
+    frontendIndexExists: fs.existsSync(frontendIndex),
+    mongo: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+app.get(['/','/index.html'], sendFrontendIndex);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/residents', residentRoutes);
@@ -72,9 +95,7 @@ app.get('/api/availability', (req, res) => {
 
 app.use('/api', (req, res) => fail(res, 'Route not found', 404));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(frontendDir, 'index.html'));
-});
+app.get('*', sendFrontendIndex);
 
 app.use((err, req, res, next) => {
   console.error(err);
