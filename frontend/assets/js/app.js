@@ -212,7 +212,8 @@ function authToken() {
 }
 async function apiFetch(url, options = {}) {
   const requestPath = String(url);
-  const isAuthEndpoint = requestPath.includes('/api/auth/login') || requestPath.includes('/api/auth/register');
+  const isAuthEndpoint = ['/api/auth/login', '/api/auth/register', '/api/auth/forgot-password', '/api/auth/reset-password']
+    .some(path => requestPath.includes(path));
   const res = await fetch(url, {
     ...options,
     headers: {
@@ -684,6 +685,7 @@ function patientLoginHTML() {
     <div class="step-error" id="pt-login-error" hidden></div>
     <div class="pt-demo-hint" id="pt-demo-hint">Demo: patient@ehmr.com / Patient@123</div>
     <button type="button" class="btn btn-primary step-full-btn" id="pt-login-submit">Sign In →</button>
+    <button type="button" class="step-link-btn" id="pt-forgot-password">Forgot password?</button>
     <button type="button" class="step-link-btn" id="pt-go-register">Don't have an account? Register →</button>`;
 }
 function patientRegisterHTML() {
@@ -734,6 +736,11 @@ function bindPatientLogin(backdrop) {
     closeStepModal(backdrop);
     openPatientRegisterModal();
   });
+  document.getElementById('pt-forgot-password').addEventListener('click', event => {
+    event.preventDefault();
+    closeStepModal(backdrop);
+    openForgotPasswordModal(email.value);
+  });
   const submit = async () => {
     errorEl.hidden = true;
     try {
@@ -757,6 +764,111 @@ function bindPatientLogin(backdrop) {
   [email, password].forEach(input => input.addEventListener('keydown', event => {
     if (event.key === 'Enter') submit();
   }));
+}
+function openForgotPasswordModal(prefillEmail = '') {
+  document.querySelector('.step-modal-backdrop')?.remove();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'step-modal-backdrop';
+  backdrop.addEventListener('click', event => {
+    if (event.target === backdrop) closeStepModal(backdrop);
+  });
+  document.body.appendChild(backdrop);
+  backdrop.innerHTML = `<div class="step-modal" role="dialog" aria-modal="true">
+    <h2>Reset Password</h2>
+    <div class="step-sub">Enter your account email to receive a reset link</div>
+    <label class="step-field-label" for="forgot-email">Email Address</label>
+    <input type="email" id="forgot-email" placeholder="your@email.com"/>
+    <div class="step-error" id="forgot-error" hidden></div>
+    <button type="button" class="btn btn-primary step-full-btn" id="forgot-submit">Send Reset Link</button>
+    <button type="button" class="step-link-btn" id="forgot-go-login">Back to Sign In</button>
+  </div>`;
+  const email = document.getElementById('forgot-email');
+  const errorEl = document.getElementById('forgot-error');
+  email.value = prefillEmail || '';
+  document.getElementById('forgot-go-login').addEventListener('click', event => {
+    event.preventDefault();
+    closeStepModal(backdrop);
+    openPatientLoginModal();
+  });
+  const submit = async () => {
+    errorEl.hidden = true;
+    try {
+      const data = await apiFetch('/api/auth/forgot-password', {method:'POST', body:JSON.stringify({email:email.value})});
+      toast(data.message || 'If an account exists, a reset link has been sent.');
+      closeStepModal(backdrop);
+      openPatientLoginModal();
+    } catch (error) {
+      errorEl.hidden = false;
+      errorEl.textContent = error.message;
+    }
+  };
+  document.getElementById('forgot-submit').addEventListener('click', submit);
+  email.addEventListener('keydown', event => {
+    if (event.key === 'Enter') submit();
+  });
+  email.focus();
+}
+function openResetPasswordModal(token, emailValue = '') {
+  document.querySelector('.step-modal-backdrop')?.remove();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'step-modal-backdrop';
+  document.body.appendChild(backdrop);
+  backdrop.innerHTML = `<div class="step-modal" role="dialog" aria-modal="true">
+    <h2>Create New Password</h2>
+    <div class="step-sub">${emailValue ? `Resetting password for ${escapeHTML(emailValue)}` : 'Choose a new password for your account'}</div>
+    <label class="step-field-label" for="reset-password">New Password</label>
+    <input type="password" id="reset-password" placeholder="Min 8 characters"/>
+    <label class="step-field-label" for="reset-confirm">Confirm Password</label>
+    <input type="password" id="reset-confirm" placeholder="Confirm password"/>
+    <div class="step-error" id="reset-error" hidden></div>
+    <button type="button" class="btn btn-primary step-full-btn" id="reset-submit">Update Password</button>
+    <button type="button" class="step-link-btn" id="reset-go-login">Back to Sign In</button>
+  </div>`;
+  const password = document.getElementById('reset-password');
+  const confirm = document.getElementById('reset-confirm');
+  const errorEl = document.getElementById('reset-error');
+  document.getElementById('reset-go-login').addEventListener('click', event => {
+    event.preventDefault();
+    closeStepModal(backdrop);
+    openPatientLoginModal();
+  });
+  const submit = async () => {
+    errorEl.hidden = true;
+    if (password.value.length < 8) {
+      errorEl.hidden = false;
+      errorEl.textContent = 'Password must be at least 8 characters';
+      return;
+    }
+    if (password.value !== confirm.value) {
+      errorEl.hidden = false;
+      errorEl.textContent = 'Passwords must match';
+      return;
+    }
+    try {
+      const data = await apiFetch('/api/auth/reset-password', {method:'POST', body:JSON.stringify({token, password:password.value})});
+      toast(data.message || 'Password updated. Please sign in.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+      closeStepModal(backdrop);
+      openPatientLoginModal();
+    } catch (error) {
+      errorEl.hidden = false;
+      errorEl.textContent = error.message;
+    }
+  };
+  document.getElementById('reset-submit').addEventListener('click', submit);
+  [password, confirm].forEach(input => input.addEventListener('keydown', event => {
+    if (event.key === 'Enter') submit();
+  }));
+  password.focus();
+}
+function openResetModalFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('resetToken');
+  if (!token) return false;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('role-gate').style.display = '';
+  openResetPasswordModal(token, params.get('email') || '');
+  return true;
 }
 function openPatientRegisterModal() {
   openPatientLoginModal();
@@ -4015,6 +4127,7 @@ loadCriticalReview = function() {
 // ===== BOOT =====
 async function bootApp() {
   bindAuthControls();
+  if (openResetModalFromUrl()) return;
   const restored = await restoreSession();
   if (!restored) {
     document.getElementById('app').style.display = 'none';

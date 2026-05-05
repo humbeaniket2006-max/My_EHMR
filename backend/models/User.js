@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
   hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital' },
   linkedHospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital' },
   hospitalName: String,
+  passwordResetTokenHash: String,
+  passwordResetExpires: Date,
   lastLogin: Date
 }, { timestamps: { createdAt: true, updatedAt: false } });
 

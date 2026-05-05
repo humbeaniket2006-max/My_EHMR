@@ -12,6 +12,13 @@ GROQ_API_KEY=<your-groq-api-key>
 GROQ_MODEL=llama-3.1-8b-instant
 MONGO_URI=<your-mongodb-atlas-connection-string>
 FRONTEND_URL=https://your-frontend-domain.com
+APP_URL=https://your-app-domain.com
+SMTP_HOST=<your-smtp-host>
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=<your-smtp-username>
+SMTP_PASS=<your-smtp-password>
+MAIL_FROM="EHMR AI <no-reply@your-domain.com>"
 ```
 
 Do not commit `.env`.
@@ -47,6 +54,11 @@ docker run -p 5000:5000 \
   -e JWT_SECRET=<long-random-secret> \
   -e GROQ_API_KEY=<your-groq-api-key> \
   -e MONGO_URI=<your-mongodb-atlas-connection-string> \
+  -e APP_URL=http://localhost:5000 \
+  -e SMTP_HOST=<your-smtp-host> \
+  -e SMTP_PORT=587 \
+  -e SMTP_USER=<your-smtp-username> \
+  -e SMTP_PASS=<your-smtp-password> \
   hospital-booking-system
 ```
 

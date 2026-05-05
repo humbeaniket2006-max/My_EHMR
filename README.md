@@ -65,7 +65,16 @@ GROQ_API_KEY=your_groq_api_key_here
 MONGO_URI=your_mongodb_cloud_connection_string
 JWT_SECRET=your_super_secret_key_min_32_chars
 PORT=3000
+APP_URL=http://localhost:5000
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+MAIL_FROM="EHMR AI <no-reply@example.com>"
 ```
+
+SMTP settings are used for welcome emails after registration and password reset emails. If SMTP is not configured, the app logs that email was skipped and continues running.
 
 Install dependencies:
 
@@ -111,6 +120,8 @@ Included deployment files:
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
+- `POST /api/auth/forgot-password`
+- `POST /api/auth/reset-password`
 - `GET /api/auth/me`
 - `GET /api/hospitals`
 - `GET /api/hospitals/:id`
