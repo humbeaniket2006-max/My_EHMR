@@ -71,7 +71,7 @@ async function sendWelcomeEmail(user) {
     to: user.email,
     subject: 'Welcome to EHMR AI',
     text: `Hi ${user.name},\n\nWelcome to EHMR AI. Your account is ready.\n\nOpen your dashboard: ${dashboardUrl}\n\nRegards,\nEHMR AI`,
-    html: `<p>Hi ${safeName},</p><p>Welcome to EHMR AI. Your account is ready.</p><p><a href="${safeDashboardUrl}">Open your dashboard</a></p><p>Regards,<br/>EHMR AI</p>`
+    html: `<div style="max-width:600px;margin:0 auto;padding:20px;background:#f4f4f4;font-family:Arial,sans-serif;"><div style="background:#0f172a;border-radius:8px 8px 0 0;padding:20px 32px;color:#ffffff;font-size:20px;font-weight:bold;">EHMR AI</div><div style="background:#ffffff;border-radius:0 0 8px 8px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,0.08);"><div style="color:#374151;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px;">Hi ${safeName},</p><p style="margin:0 0 16px;">Welcome to EHMR AI. Your account is ready.</p><a href="${safeDashboardUrl}" style="background:#2563eb;color:#ffffff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;margin-top:16px;">Open your dashboard</a><p style="margin:24px 0 0;">Regards,<br/>EHMR AI</p><p style="color:#9ca3af;font-size:12px;margin:24px 0 0;">If you didn't request this, you can safely ignore this email.</p></div></div></div>`
   });
 }
 
@@ -83,7 +83,7 @@ async function sendPasswordResetEmail(user, resetToken) {
     to: user.email,
     subject: 'Reset your EHMR AI password',
     text: `Hi ${user.name},\n\nUse this link to reset your EHMR AI password. It expires in 30 minutes:\n${resetUrl}\n\nIf you did not request this, you can ignore this email.\n\nRegards,\nEHMR AI`,
-    html: `<p>Hi ${safeName},</p><p>Use this link to reset your EHMR AI password. It expires in 30 minutes:</p><p><a href="${safeResetUrl}">Reset password</a></p><p>If you did not request this, you can ignore this email.</p><p>Regards,<br/>EHMR AI</p>`
+    html: `<div style="max-width:600px;margin:0 auto;padding:20px;background:#f4f4f4;font-family:Arial,sans-serif;"><div style="background:#0f172a;border-radius:8px 8px 0 0;padding:20px 32px;color:#ffffff;font-size:20px;font-weight:bold;">EHMR AI</div><div style="background:#ffffff;border-radius:0 0 8px 8px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,0.08);"><div style="color:#374151;font-size:16px;line-height:1.6;"><p style="margin:0 0 16px;">Hi ${safeName},</p><p style="margin:0 0 16px;">Use this link to reset your EHMR AI password. It expires in 30 minutes.</p><a href="${safeResetUrl}" style="background:#2563eb;color:#ffffff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block;margin-top:16px;">Reset password</a><p style="margin:24px 0 0;">Regards,<br/>EHMR AI</p><p style="color:#9ca3af;font-size:12px;margin:24px 0 0;">If you didn't request this, you can safely ignore this email.</p></div></div></div>`
   });
 }
 
