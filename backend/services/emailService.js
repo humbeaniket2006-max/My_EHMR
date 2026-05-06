@@ -1,12 +1,13 @@
-let transporter;
-let missingMailerWarned = false;
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
+
+let missingApiKeyWarned = false;
 
 function mailEnabled() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+  return Boolean(process.env.BREVO_API_KEY);
 }
 
 function getFromAddress() {
-  return process.env.MAIL_FROM || process.env.SMTP_FROM || 'EHMR AI <no-reply@ehmr.ai>';
+  return process.env.MAIL_FROM_ADDRESS || 'noreply@ehmrai.com';
 }
 
 function getAppUrl() {
@@ -17,49 +18,49 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
 
-function getTransporter() {
-  if (transporter) return transporter;
-
-  let nodemailer;
-  try {
-    nodemailer = require('nodemailer');
-  } catch (error) {
-    if (!missingMailerWarned) {
-      console.warn('Email disabled: nodemailer is not installed. Run npm install before enabling SMTP email.');
-      missingMailerWarned = true;
-    }
-    return null;
+function parseSender(address) {
+  const match = String(address || '').match(/^(.*)<([^>]+)>$/);
+  if (!match) {
+    return { email: String(address || '').trim() };
   }
 
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: String(process.env.SMTP_SECURE || '').toLowerCase() === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
-  console.log(`SMTP transporter created: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT} user=${process.env.SMTP_USER}`);
-  return transporter;
+  return {
+    name: match[1].trim().replace(/^"|"$/g, ''),
+    email: match[2].trim()
+  };
 }
 
 async function sendEmail({ to, subject, text, html }) {
   if (!mailEnabled()) {
-    console.log(`Email skipped: SMTP is not configured (${subject} -> ${to})`);
+    if (!missingApiKeyWarned) {
+      console.warn('Email disabled: BREVO_API_KEY is not configured. Skipping outbound email.');
+      missingApiKeyWarned = true;
+    }
     return { skipped: true };
   }
 
-  const mailer = getTransporter();
-  if (!mailer) return { skipped: true };
-
-  return mailer.sendMail({
-    from: getFromAddress(),
-    to,
-    subject,
-    text,
-    html
+  const response = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: parseSender(getFromAddress()),
+      to: [{ email: to }],
+      subject,
+      textContent: text,
+      htmlContent: html
+    })
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Brevo email failed (${response.status}): ${errorText}`);
+  }
+
+  return response.json();
 }
 
 async function sendWelcomeEmail(user) {

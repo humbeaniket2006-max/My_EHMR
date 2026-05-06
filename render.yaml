@@ -21,15 +21,7 @@ services:
         sync: false
       - key: APP_URL
         sync: false
-      - key: SMTP_HOST
+      - key: BREVO_API_KEY
         sync: false
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_SECURE
-        value: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: MAIL_FROM
+      - key: MAIL_FROM_ADDRESS
         sync: false

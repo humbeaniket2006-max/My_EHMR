@@ -775,15 +775,19 @@ function openForgotPasswordModal(prefillEmail = '') {
   document.body.appendChild(backdrop);
   backdrop.innerHTML = `<div class="step-modal" role="dialog" aria-modal="true">
     <h2>Reset Password</h2>
-    <div class="step-sub">Enter your account email to receive a reset link</div>
+    <div class="step-sub" id="forgot-sub">Enter your account email to receive a reset link</div>
     <label class="step-field-label" for="forgot-email">Email Address</label>
     <input type="email" id="forgot-email" placeholder="your@email.com"/>
+    <div class="step-success" id="forgot-success" hidden></div>
     <div class="step-error" id="forgot-error" hidden></div>
     <button type="button" class="btn btn-primary step-full-btn" id="forgot-submit">Send Reset Link</button>
     <button type="button" class="step-link-btn" id="forgot-go-login">Back to Sign In</button>
   </div>`;
   const email = document.getElementById('forgot-email');
   const errorEl = document.getElementById('forgot-error');
+  const successEl = document.getElementById('forgot-success');
+  const subEl = document.getElementById('forgot-sub');
+  const submitBtn = document.getElementById('forgot-submit');
   email.value = prefillEmail || '';
   document.getElementById('forgot-go-login').addEventListener('click', event => {
     event.preventDefault();
@@ -792,17 +796,22 @@ function openForgotPasswordModal(prefillEmail = '') {
   });
   const submit = async () => {
     errorEl.hidden = true;
+    successEl.hidden = true;
     try {
       const data = await apiFetch('/api/auth/forgot-password', {method:'POST', body:JSON.stringify({email:email.value})});
       toast(data.message || 'If an account exists, a reset link has been sent.');
-      closeStepModal(backdrop);
-      openPatientLoginModal();
+      subEl.textContent = 'Reset link shared successfully. Please check your email inbox.';
+      successEl.hidden = false;
+      successEl.textContent = data.message || 'Reset link shared successfully.';
+      email.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Reset Link Sent';
     } catch (error) {
       errorEl.hidden = false;
       errorEl.textContent = error.message;
     }
   };
-  document.getElementById('forgot-submit').addEventListener('click', submit);
+  submitBtn.addEventListener('click', submit);
   email.addEventListener('keydown', event => {
     if (event.key === 'Enter') submit();
   });

@@ -1508,6 +1508,8 @@ body.role-resident #page-services .service-tile{
 .step-modal details th { text-transform:uppercase; font-weight:700;
   color:var(--text-muted); padding:4px 8px; text-align:left; }
 .step-modal details td { padding:4px 8px; border-top:1px solid var(--border); }
+.step-success { color:var(--green); font-size:12px; min-height:18px;
+  margin-top:8px; }
 .step-error { color:var(--coral); font-size:12px; min-height:18px;
   margin-top:8px; }
 @keyframes shake {
