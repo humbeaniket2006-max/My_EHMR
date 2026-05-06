@@ -18,7 +18,7 @@ A full-stack electronic health management system built for senior care facilitie
 | **Email** | Brevo SMTP API |
 | **Frontend** | Vanilla JS, CSS3 (served statically by Express) |
 | **Maps** | Leaflet.js |
-| **Deployment** | Render (web service) / Docker |
+| **Deployment** | Render (web service) |
 | **CI** | GitHub Actions |
 
 ---
