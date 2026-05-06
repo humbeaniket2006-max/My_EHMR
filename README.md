@@ -2,7 +2,7 @@
 
 A full-stack electronic health management system built for senior care facilities. EHMR AI combines clinical record management, AI-powered health insights, appointment scheduling, and patient-facing dashboards into a single deployable Node.js web service.
 
-**Live Demo:** [ehmr-ai.onrender.com](https://ehmr-ai.onrender.com) &nbsp;|&nbsp; **Demo Credentials:** see [Role Entry](#role-entry) below
+**Live Demo:** [my-ehmr.onrender.com](https://my-ehmr.onrender.com) &nbsp;|&nbsp; **Demo Credentials:** see [Role Entry](#role-entry) below
 
 ---
 
