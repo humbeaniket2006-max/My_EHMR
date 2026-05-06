@@ -1,167 +1,246 @@
-# EHMR AI Hospital and Patient Web App
+# EHMR AI — Smart Senior Health Platform
 
-A full-stack EHMR AI web application based on the original `index (6).html` dashboard, with patient and hospital role entry, clinical records, AI insights, services, appointment scheduling, and map-based hospital selection.
+A full-stack electronic health management system built for senior care facilities. EHMR AI combines clinical record management, AI-powered health insights, appointment scheduling, and patient-facing dashboards into a single deployable Node.js web service.
 
-## Submission Format
+**Live Demo:** [ehmr-ai.onrender.com](https://ehmr-ai.onrender.com) &nbsp;|&nbsp; **Demo Credentials:** see [Role Entry](#role-entry) below
 
-Submit this project as a GitHub repository link:
+---
 
-```text
-https://github.com/<your-username>/hospital-bed-appointment-booking-system
-```
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Runtime** | Node.js 18+ |
+| **Framework** | Express.js |
+| **Database** | MongoDB Atlas (Mongoose ODM) |
+| **Auth** | JWT + bcrypt |
+| **AI** | Groq API (llama-3.3-70b-versatile) |
+| **Email** | Brevo SMTP API |
+| **Frontend** | Vanilla JS, CSS3 (served statically by Express) |
+| **Maps** | Leaflet.js |
+| **Deployment** | Render (web service) / Docker |
+| **CI** | GitHub Actions |
+
+---
 
 ## Features
 
-- Original EHMR AI dashboard restored from `index (6).html`
-- Login-time role selection for Patient and Hospital
-- Separate patient-facing and hospital/admin dashboard interfaces
-- Patient-only Leaflet map to select nearby hospitals
-- Appointment booking with selected hospital, doctor, date, and slot
-- Vitals, labs, eMAR, prescriptions, care plan, services, insurance/ABHA, audit, and records views
-- Local backend APIs for appointments, availability, AI proxy, auth, records, and MongoDB Cloud storage
+- **Dual-role dashboard** — separate Patient and Hospital/Admin interfaces from a single login
+- **AI Health Insights** — Groq-powered risk interpretation from vitals, labs, and medication history
+- **Clinical records** — vitals monitor, eMAR, lab reports, shift notes, care plans, clinical timeline
+- **Appointment booking** — doctor availability slots, AI-priority scheduling, visit status tracking
+- **Services** — home visits, lab collection, physiotherapy, pharmacy delivery, transport booking
+- **Insurance + ABHA** — policy management, ABHA digital health ID, government scheme readiness
+- **Hospital finder** — Leaflet map for patients to select nearby hospitals
+- **Auth flows** — JWT login, registration, forgot password, password reset via email
+- **Audit log** — full activity trail across all clinical actions
+- **Rate limiting + security** — helmet, express-rate-limit, CORS, trust proxy configured for Render
 
-## Role Entry
-
-```text
-Use the role cards on the login page.
-
-Patient: opens patient health, services, insurance, and hospital map views.
-Hospital: opens clinical/admin hospital dashboard views.
-```
+---
 
 ## Project Structure
 
-```text
+```
 .
-├── backend/                 Express API, auth, MongoDB models, routes, seed, tests
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   ├── tests/
-│   ├── utils/
+├── backend/
+│   ├── middleware/        auth.js
+│   ├── models/            User, Resident, Hospital, Appointment, Booking,
+│   │                      Record, Notification, SharedRecord
+│   ├── routes/            auth, residents, appointments, hospitals,
+│   │                      bookings, records, notifications, sharedRecords, ai
+│   ├── services/          emailService.js (Brevo HTTP API)
+│   ├── tests/             smoke.test.js
+│   ├── utils/             asyncHandler, respond, validate
 │   ├── seed.js
 │   └── server.js
-├── frontend/                Static EHMR AI web client served by Express
+├── frontend/
 │   ├── assets/
 │   │   ├── css/styles.css
 │   │   └── js/app.js
 │   └── index.html
-├── docs/                    Deployment, testing, and feature notes
-├── .github/workflows/       CI smoke test workflow
+├── docs/
+│   ├── DEPLOYMENT.md
+│   ├── TESTING.md
+│   └── LEGACY_FEATURES.md
+├── .github/workflows/ci.yml
 ├── Dockerfile
-├── package.json
 ├── render.yaml
+├── package.json
 └── README.md
 ```
 
+---
+
+## Role Entry
+
+On the login page, select a role card before signing in:
+
+| Role | Access |
+|---|---|
+| **Patient** | Health summary, AI insight, vitals, labs, services, insurance/ABHA, hospital map |
+| **Hospital / Admin** | Clinical dashboard, residents, alerts, eMAR, shift notes, lab reports, audit log, ledger |
+
+**Demo accounts (pre-seeded):**
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@ehmr.com` | `Admin@123` |
+| Doctor / Staff | `doctor.deepa@ehmr.com` | `Admin@123` |
+| Patient | `patient@ehmr.com` | `Patient@123` |
+
+**Seeded hospital staff accounts** (password: `Hospital@123`):
+
+| Hospital | Login |
+|---|---|
+| Apollo Hospitals Greams Road | `admin@apollohospitalsgreamsroad.com` |
+| MIOT International | `admin@miotinternational.com` |
+| Kauvery Hospital | `admin@kauveryhospital.com` |
+| PSG Hospitals | `admin@psghospitals.com` |
+| Meenakshi Mission Hospital | `admin@meenakshimissionhospital.com` |
+
+---
+
 ## Run Locally
 
-Create a local `.env` file in the project root. This file is intentionally ignored by Git and should never be committed.
-
-Add these values:
-
-```text
-GROQ_API_KEY=your_groq_api_key_here
-MONGO_URI=your_mongodb_cloud_connection_string
-JWT_SECRET=your_super_secret_key_min_32_chars
-PORT=3000
-APP_URL=http://localhost:5000
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_smtp_username
-SMTP_PASS=your_smtp_password
-MAIL_FROM="EHMR AI <no-reply@example.com>"
-```
-
-SMTP settings are used for welcome emails after registration and password reset emails. If SMTP is not configured, the app logs that email was skipped and continues running.
-
-Install dependencies:
-
+**1. Clone and install**
 ```bash
+git clone https://github.com/<your-username>/hospital-bed-appointment-booking-system
+cd hospital-bed-appointment-booking-system
 npm install
 ```
 
+**2. Create `.env` in the project root**
+```env
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_super_secret_key_min_32_chars
+GROQ_API_KEY=your_groq_api_key
+PORT=5000
+APP_URL=http://localhost:5000
+
+# Email (Brevo)
+BREVO_API_KEY=your_brevo_api_key
+MAIL_FROM_ADDRESS=your_verified_sender@email.com
+```
+
+> If `BREVO_API_KEY` is not set, email is skipped with a console log — the app continues running normally.
+
+**3. Seed demo data**
+```bash
+npm run seed
+```
+
+**4. Start**
 ```bash
 npm start
 ```
 
-Open:
+Open [http://localhost:5000](http://localhost:5000)
 
-```text
-http://localhost:5000
-```
+---
+
+## API Reference
+
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register new user |
+| `POST` | `/api/auth/login` | Login, returns JWT |
+| `GET` | `/api/auth/me` | Get current user (auth required) |
+| `POST` | `/api/auth/forgot-password` | Send password reset email |
+| `POST` | `/api/auth/reset-password` | Reset password with token |
+
+### Residents
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/residents` | List all residents |
+| `POST` | `/api/residents` | Create resident |
+| `GET` | `/api/residents/:id` | Get resident by ID |
+| `PUT` | `/api/residents/:id` | Update resident |
+| `DELETE` | `/api/residents/:id` | Delete resident |
+
+### Hospitals
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/hospitals` | List all hospitals |
+| `GET` | `/api/hospitals/:id` | Get hospital by ID |
+| `POST` | `/api/hospitals` | Create hospital |
+| `PUT` | `/api/hospitals/:id` | Update hospital |
+
+### Appointments
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/appointments` | List appointments |
+| `POST` | `/api/appointments` | Book appointment |
+| `PUT` | `/api/appointments/:id` | Update appointment |
+| `DELETE` | `/api/appointments/:id` | Cancel appointment |
+| `GET` | `/api/availability` | Get available slots by doctor + date |
+
+### Bookings & Services
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/bookings` | List all bookings |
+| `GET` | `/api/bookings/me` | Get current user's bookings |
+| `POST` | `/api/bookings` | Create service booking |
+| `PATCH` | `/api/bookings/:id/status` | Update booking status |
+| `PUT` | `/api/bookings/:id/cancel` | Cancel booking |
+
+### Records & Notifications
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/records` | List records |
+| `POST` | `/api/records` | Create record |
+| `GET` | `/api/notifications/mine` | Get user notifications |
+| `PATCH` | `/api/notifications/:id/read` | Mark notification read |
+| `GET` | `/api/shared-records` | List shared records |
+| `GET` | `/api/shared-records/:bookingId` | Get shared record by booking |
+
+### AI
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/ai-insight` | Generate AI health insight via Groq |
+
+---
 
 ## Testing
 
-Run the automated smoke test:
-
+Run the automated smoke test suite:
 ```bash
 npm test
 ```
 
-Manual QA steps are documented in [docs/TESTING.md](docs/TESTING.md).
+Manual QA steps are documented in [`docs/TESTING.md`](docs/TESTING.md).
 
-Original `index (6).html` feature mapping is documented in [docs/LEGACY_FEATURES.md](docs/LEGACY_FEATURES.md).
+---
 
 ## Deployment
 
-This project can be deployed as one Node web service because the backend also serves the frontend static files.
+The backend serves frontend static files, so this deploys as a **single web service** — no separate frontend hosting needed.
 
-Deployment options are documented in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+**Render (recommended):**
+- Connect your GitHub repo to Render
+- Set environment variables in the Render dashboard
+- Build command: `npm install`
+- Start command: `npm start`
+- Add `BREVO_API_KEY`, `MONGO_URI`, `JWT_SECRET`, `GROQ_API_KEY` as env vars
 
-Included deployment files:
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for Docker and other options.
 
-- `render.yaml` for Render web service deployment
-- `Dockerfile` for Docker-based deployment
-- `.github/workflows/ci.yml` for GitHub Actions smoke testing
+---
 
-## API Overview
+## Environment Variables Reference
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `GET /api/auth/me`
-- `GET /api/hospitals`
-- `GET /api/hospitals/:id`
-- `GET /api/appointments`
-- `POST /api/appointments`
-- `PUT /api/appointments/:id`
-- `DELETE /api/appointments/:id`
-- `GET /api/availability`
-- `GET /api/residents`
-- `POST /api/residents`
-- `GET /api/residents/:id`
-- `PUT /api/residents/:id`
-- `DELETE /api/residents/:id`
-- `GET /api/bookings`
-- `GET /api/bookings/me`
-- `POST /api/bookings`
-- `PATCH /api/bookings/:id/status`
-- `PUT /api/bookings/:id/cancel`
-- `GET /api/notifications/mine`
-- `PATCH /api/notifications/:id/read`
-- `GET /api/shared-records`
-- `GET /api/shared-records/:bookingId`
-- `POST /api/hospitals`
-- `PUT /api/hospitals/:id`
-- `POST /api/ai-insight`
-- `GET /api/records`
-- `POST /api/records`
+| Variable | Required | Description |
+|---|---|---|
+| `MONGO_URI` | ✅ | MongoDB Atlas connection string |
+| `JWT_SECRET` | ✅ | Secret key for JWT signing (min 32 chars) |
+| `GROQ_API_KEY` | ✅ | Groq API key for AI insights |
+| `PORT` | — | Server port (default: 5000) |
+| `APP_URL` | — | Base URL for email links |
+| `BREVO_API_KEY` | — | Brevo API key for transactional email |
+| `MAIL_FROM_ADDRESS` | — | Verified sender email address |
 
-## Notes
+---
 
-Frontend API calls use relative `/api/...` paths, so no Railway backend URL is required. The Groq API key and MongoDB URI stay in `.env` and are read only by the backend.
+## License
 
-Run `npm run seed` once after setting `MONGO_URI` to insert the demo admin (`admin@ehmr.com` / `Admin@123`), demo patient (`patient@ehmr.com` / `Patient@123`), residents, hospitals, and linked hospital staff accounts. Sample hospital staff logins use `Hospital@123`, for example `admin@apollohospitalsgreamsroad.com`.
-
-Seeded hospital staff accounts:
-
-- Apollo Hospitals Greams Road: `admin@apollohospitalsgreamsroad.com`
-- MIOT International: `admin@miotinternational.com`
-- Kauvery Hospital: `admin@kauveryhospital.com`
-- PSG Hospitals: `admin@psghospitals.com`
-- Meenakshi Mission Hospital: `admin@meenakshimissionhospital.com`
-
-For production, set `MONGO_URI` and a strong `JWT_SECRET` environment variable.
+MIT
