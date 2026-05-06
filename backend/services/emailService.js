@@ -40,6 +40,7 @@ function getTransporter() {
       pass: process.env.SMTP_PASS
     }
   });
+  console.log(`SMTP transporter created: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT} user=${process.env.SMTP_USER}`);
   return transporter;
 }
 

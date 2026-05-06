@@ -20,6 +20,7 @@ const aiRoutes = require('./routes/ai');
 const { fail } = require('./utils/respond');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 const frontendDir = path.join(__dirname, '..', 'frontend');
