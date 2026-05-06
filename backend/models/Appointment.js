@@ -11,7 +11,7 @@ const appointmentSchema = new mongoose.Schema({
   recordsShared: { type: Boolean, default: false },
   date: { type: Date, required: true },
   time: { type: String, required: true },
-  status: { type: String, enum: ['scheduled', 'completed', 'cancelled'], default: 'scheduled' },
+  status: { type: String, enum: ['scheduled', 'completed', 'cancelled', 'missed'], default: 'scheduled' },
   notes: String,
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });

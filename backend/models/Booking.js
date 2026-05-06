@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   hospitalId: { type: mongoose.Schema.Types.ObjectId, ref: 'Hospital', required: true },
-  type: { type: String, enum: ['appointment', 'bed'], required: true },
+  type: { type: String, enum: ['appointment', 'bed', 'Home Lab Collection', 'Physiotherapy Session', 'Home Visit'], required: true },
   department: String,
   doctor: String,
   bedType: { type: String, enum: ['general', 'icu', 'private', ''] },

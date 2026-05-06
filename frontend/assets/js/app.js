@@ -1349,15 +1349,16 @@ async function loadResidentsFromApi() {
       initials:r.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),
       age:r.age,
       room:r.room,
-      blood:'',
-      condition:'Stable',
-      admitted:'',
-      doctor:'Dr. Priya Nair',
-      caregiver:'Sunita Rao',
-      phone:'919876543210',
-      emergency:{name:'Family',relation:'Emergency Contact',phone:''},
+      blood:r.blood || '',
+      condition:r.condition || 'Stable',
+      admitted:r.admitted || '',
+      doctor:r.doctor || 'Not assigned',
+      caregiver:r.caregiver || 'Care team',
+      phone:r.phone || '',
+      emergency:r.emergencyContact || {name:'Family',relation:'Emergency Contact',phone:''},
       diagnoses:r.conditions || [],
-      allergies:(r.allergies || []).map(item => ({drug:item,severity:'moderate'})),
+      allergyObjects:(r.allergies || []).map(item => typeof item === 'string' ? {drug:item,severity:'moderate'} : item),
+      allergies:(r.allergies || []).map(item => typeof item === 'string' ? item : item.drug),
       color:'#00897B'
     }));
     apiResidents.forEach((r, index) => {
@@ -1370,14 +1371,15 @@ async function loadResidentsFromApi() {
           pulse:v.hr,
           spo2:v.spo2,
           temp:v.temp,
+          glucose:v.glucose,
           weight:v.weight,
-          by:'MongoDB',
-          notes:'Loaded from API'
+          by:v.by || 'Care Team',
+          notes:v.notes || ''
         }));
       }
-      if (r.medications?.length) medsData[residentKey] = r.medications.map((m, idx) => ({id:'M'+idx,name:`${m.name} ${m.dose || ''}`.trim(),route:'Oral',freq:m.frequency,indication:'',by:'API',times:[]}));
-      if (r.labs?.length) labsData[residentKey] = r.labs.map((l, idx) => ({id:'L'+idx,test:l.test,result:l.result,unit:l.unit,ref:l.ref,status:l.status,date:(l.date || '').slice(0,10),by:'API'}));
-      if (r.notes?.length) notesData[residentKey] = r.notes.map(n => ({shift:n.shift,date:(n.date || '').slice(0,10),author:n.author,role:'Staff',note:n.note,t:n.date || new Date().toISOString(),tasks:n.tasks || []}));
+      if (r.medications?.length) medsData[residentKey] = r.medications.map((m, idx) => ({id:'M'+idx,name:`${m.name} ${m.dose || ''}`.trim(),route:'Oral',freq:m.frequency,indication:m.indication || '',by:m.prescribedBy || 'Care Team',times:[]}));
+      if (r.labs?.length) labsData[residentKey] = r.labs.map((l, idx) => ({id:'L'+idx,test:l.test,result:l.result,unit:l.unit,ref:l.ref,status:l.status,date:(l.date || '').slice(0,10),by:l.by || 'Care Team'}));
+      if (r.notes?.length) notesData[residentKey] = r.notes.map(n => ({shift:n.shift,date:(n.date || '').slice(0,10),author:n.author,role:n.role || 'Staff',note:n.note,t:n.date || new Date().toISOString(),tasks:n.tasks || []}));
     });
   } catch (error) {
     console.warn(error);

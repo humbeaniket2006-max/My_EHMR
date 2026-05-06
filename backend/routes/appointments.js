@@ -68,7 +68,7 @@ router.post('/', [
 
 router.put('/:id', [
   param('id').isMongoId(),
-  body('status').optional().isIn(['scheduled', 'completed', 'cancelled', 'Scheduled', 'Completed', 'Cancelled'])
+  body('status').optional().isIn(['scheduled', 'completed', 'cancelled', 'missed', 'Scheduled', 'Completed', 'Cancelled', 'Missed'])
 ], validate, asyncHandler(async (req, res) => {
   const updates = { ...req.body };
   if (updates.status) updates.status = String(updates.status).toLowerCase();

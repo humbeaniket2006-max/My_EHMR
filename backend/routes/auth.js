@@ -61,12 +61,31 @@ async function syncDemoPatientResident(user) {
         name: 'Ramesh Iyer',
         age: 78,
         room: '204-A',
+        blood: 'B+',
+        condition: 'Stable',
+        admitted: '2024-01-15',
+        doctor: 'Dr. Priya Nair',
+        caregiver: 'Sunita Rao',
+        phone: '919876543210',
+        emergencyContact: { name: 'Anand Iyer', relation: 'Son', phone: '9876501234' },
         conditions: ['Type 2 Diabetes', 'Hypertension', 'Mild Arthritis'],
-        allergies: ['Penicillin severe', 'Aspirin moderate'],
-        vitals: [{ date: new Date(), bp: '142/88', hr: 84, spo2: 93, temp: 36.9, weight: 67.8 }],
-        medications: [{ name: 'Metformin', dose: '500mg', frequency: 'Twice daily', startDate: new Date() }],
-        notes: [{ shift: 'Morning', date: new Date(), author: 'Sunita Rao', note: 'Mild fatigue, fasting sugar high', tasks: ['Repeat vitals'] }],
-        labs: [{ test: 'HbA1c', result: '7.8', unit: '%', ref: '< 7.0', status: 'high', date: new Date() }],
+        allergies: [{ drug: 'Penicillin', severity: 'severe' }, { drug: 'Aspirin', severity: 'moderate' }],
+        vitals: [
+          { date: new Date(), bp: '142/88', hr: 84, spo2: 93, temp: 36.9, glucose: 184, weight: 67.8, by: 'Sunita Rao', notes: 'Morning check - mild fatigue; fasting sugar high' },
+          { date: new Date(Date.now() - 86400000), bp: '138/86', hr: 82, spo2: 94, temp: 36.8, glucose: 176, weight: 67.9, by: 'Sunita Rao', notes: 'Morning - appetite normal; oxygen slightly low' }
+        ],
+        medications: [
+          { name: 'Metformin', dose: '500mg', frequency: 'Twice daily', indication: 'Diabetes', prescribedBy: 'Dr. Priya Nair', startDate: new Date() },
+          { name: 'Amlodipine', dose: '5mg', frequency: 'Once daily', indication: 'Hypertension', prescribedBy: 'Dr. Priya Nair', startDate: new Date() },
+          { name: 'Pantoprazole', dose: '40mg', frequency: 'Once daily', indication: 'Gastric protection', prescribedBy: 'Dr. Priya Nair', startDate: new Date() }
+        ],
+        notes: [
+          { shift: 'Evening', date: new Date(Date.now() - 5 * 86400000), author: 'Sunita Rao', role: 'Caregiver', note: 'Good day overall. Physiotherapy completed. Glucose 168 post-lunch - Dr. Nair informed. Evening Calcium pending. Mood: Cheerful.', tasks: ['Evening Calcium + Vit D3 at 20:00', 'Morning vitals 08:00'] }
+        ],
+        labs: [
+          { test: 'HbA1c', result: '7.8', unit: '%', ref: '<7.0', status: 'high', date: new Date('2026-03-20T09:00:00.000Z'), by: 'Dr. Priya Nair' },
+          { test: 'Fasting Glucose', result: '138', unit: 'mg/dL', ref: '70-100', status: 'high', date: new Date('2026-03-20T09:00:00.000Z'), by: 'Dr. Priya Nair' }
+        ],
         createdBy: user._id
       }
     },
