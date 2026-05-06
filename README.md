@@ -12,7 +12,7 @@ A full-stack electronic health management system built for senior care facilitie
 |---|---|
 | **Runtime** | Node.js 18+ |
 | **Framework** | Express.js |
-| **Database** | MongoDB Atlas (Mongoose ODM) |
+| **Database** | MongoDB Atlas Cloud (Mongoose ODM) |
 | **Auth** | JWT + bcrypt |
 | **AI** | Groq API (llama-3.3-70b-versatile) |
 | **Email** | Brevo SMTP API |
