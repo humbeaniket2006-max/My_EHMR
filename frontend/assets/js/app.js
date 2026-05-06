@@ -3760,7 +3760,7 @@ function loadLedgerResources() {
   <div><div class="card"><div class="card-hdr"><div class="card-ttl">Monthly Totals</div></div>${totals.map(x=>`<div class="chart-row"><div class="chart-lbl">${x.r.name.split(' ')[0]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.min(x.total/3000*100,100)}%;background:var(--teal)"></div></div><div class="chart-val">₹${x.total}</div></div>`).join('')}</div>
   <div class="card"><div class="card-hdr"><div class="card-ttl">Resources</div></div>${resourceState.beds.map(b=>`<div class="info-row"><div class="info-lbl">${b.label}</div><div class="info-val">${b.status}${b.resId?' · '+patientName(b.resId):''}</div></div>`).join('')}${resourceState.equipment.map(e=>`<div class="info-row"><div class="info-lbl">${e.name}</div><div class="info-val">${e.status}</div></div>`).join('')}</div></div></div>
   <div class="grid-2" style="margin-top:14px">
-    <div class="card"><div class="card-hdr"><div><div class="card-ttl">Patient Service Access</div><div class="page-sub">Shows services patients have requested or accessed</div></div></div><div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Resident</th><th>Service</th><th>Date</th><th>Access Mark</th><th>Status</th></tr></thead><tbody>${serviceRows.map(s=>`<tr><td>${s.id}</td><td>${patientName(s.resId)}</td><td>${s.type}</td><td>${s.date} ${s.time}</td><td><span class="badge ${s.accessed?'badge-stable':'badge-monitor'}">${s.accessed?'Accessed':'Requested'}</span></td><td>${statusBadge(s.status)}</td></tr>`).join('') || '<tr><td colspan="6">No service access records</td></tr>'}</tbody></table></div></div>
+    <div class="card"><div class="card-hdr"><div><div class="card-ttl">Patient Service Access</div><div class="page-sub">Shows services patients have requested or accessed</div></div></div><div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Resident</th><th>Service</th><th>Date</th><th>Access Mark</th><th>Status</th><th>Actions</th></tr></thead><tbody>${serviceRows.map(s=>`<tr><td>${s.id}</td><td>${patientName(s.resId)}</td><td>${s.type}</td><td>${s.date} ${s.time}</td><td><span class="badge ${s.accessed?'badge-stable':'badge-monitor'}">${s.accessed?'Accessed':'Requested'}</span></td><td>${statusBadge(s.status)}</td><td>${s.status==='Pending' && currentRole !== 'resident' ? `<button class="btn btn-primary btn-sm" onclick="confirmService('${s.id}')">Confirm</button> <button class="btn btn-outline btn-sm" onclick="rejectService('${s.id}')">Reject</button>` : s.status==='Confirmed' ? `<button class="btn btn-outline btn-sm" onclick="completeService('${s.id}')">Mark Complete</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="7">No service access records</td></tr>'}</tbody></table></div></div>
     <div class="card"><div class="card-hdr"><div><div class="card-ttl">Medicine Ledger</div><div class="page-sub">Active medicines, doctor prescriptions, and delivery orders</div></div></div><div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Resident</th><th>Type</th><th>Medicine</th><th>Qty / Dose</th><th>Status</th></tr></thead><tbody>${medicineRows.map(m=>`<tr><td>${m.date}</td><td>${patientName(m.resId)}</td><td>${m.type}</td><td>${m.medicine}</td><td>${m.qty || 'As advised'}</td><td><span class="badge badge-teal">${m.status}</span></td></tr>`).join('') || '<tr><td colspan="6">No medicine records</td></tr>'}</tbody></table></div></div>
   </div>`;
   addAudit('VIEW','ledger_resources','Ledger and resource panel');
@@ -3795,7 +3795,7 @@ function loadServices() {
     <div class="selected-hospital-meta">${hospital?.area || ''} · ${hospital?.status || 'Available'} · ${(hospital?.departments || []).slice(0, 4).join(', ')}</div>
   </div>
   <div class="service-grid">${serviceCatalog().map(([name,icon,eta,avail])=>`<div class="service-tile"><div class="service-icon">${icon}</div><div style="font-size:16px;font-weight:900;color:var(--g800)">${name}</div><div style="font-size:12px;color:var(--g500);margin:5px 0">${eta}</div><span class="badge ${avail==='Available'?'badge-stable':avail==='Busy'?'badge-monitor':'badge-teal'}">${avail}</span><div style="font-size:11px;color:var(--g400);margin-top:8px">${hospital?.name || 'Selected hospital'}</div><div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="${name==='Doctor Appointment'?'openAppointmentModal()':`openServiceModal('${name.replace(/'/g,"\\'")}')`}">Book Now</button></div></div>`).join('')}</div>
-  <div class="card" style="margin-top:14px"><div class="card-hdr"><div class="card-ttl">${currentRole === 'resident' ? 'My Service Requests' : 'Service Requests'} · ${hospital?.name || 'Selected Hospital'}</div></div><div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Service</th><th>Hospital</th><th>Resident</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${scoped.map(s=>`<tr><td>${s.id}</td><td>${s.type}</td><td>${s.hospitalName || hospital?.name || 'Selected hospital'}</td><td>${patientName(s.resId)}</td><td>${s.date} ${s.time}</td><td>${statusBadge(s.status)}</td><td>${s.status==='Pending'?`<button class="btn btn-outline btn-sm" onclick="cancelService('${s.id}')">Cancel</button>`:''}</td></tr>`).join('') || '<tr><td colspan="7">No service requests for this hospital</td></tr>'}</tbody></table></div></div>`;
+  <div class="card" style="margin-top:14px"><div class="card-hdr"><div class="card-ttl">${currentRole === 'resident' ? 'My Service Requests' : 'Service Requests'} · ${hospital?.name || 'Selected Hospital'}</div></div><div class="tbl-wrap"><table><thead><tr><th>Ref</th><th>Service</th><th>Hospital</th><th>Resident</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${scoped.map(s=>`<tr><td>${s.id}</td><td>${s.type}</td><td>${s.hospitalName || hospital?.name || 'Selected hospital'}</td><td>${patientName(s.resId)}</td><td>${s.date} ${s.time}</td><td>${statusBadge(s.status)}</td><td>${s.status==='Pending' && currentRole === 'resident' ? `<button class="btn btn-outline btn-sm" onclick="cancelService('${s.id}')">Cancel</button>` : s.status==='Pending' && currentRole !== 'resident' ? `<button class="btn btn-primary btn-sm" onclick="confirmService('${s.id}')">Confirm</button> <button class="btn btn-outline btn-sm" onclick="rejectService('${s.id}')">Reject</button>` : s.status==='Confirmed' && currentRole !== 'resident' ? `<button class="btn btn-outline btn-sm" onclick="completeService('${s.id}')">Mark Complete</button>` : '—'}</td></tr>`).join('') || '<tr><td colspan="7">No service requests for this hospital</td></tr>'}</tbody></table></div></div>`;
   addAudit('VIEW','services','Service booking hub');
 }
 function openServiceModal(type) {
@@ -3818,7 +3818,42 @@ function saveServiceBooking() {
     toast('Service booking created');
   }, 400);
 }
+async function updateBookingStatusAPI(id, status) {
+  try {
+    const token = localStorage.getItem('ehmr-token');
+    await fetch(`/api/bookings/${id}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ status })
+    });
+  } catch (e) {
+    console.warn('Booking API sync failed, localStorage updated only', e);
+  }
+}
 function cancelService(id) { const s = serviceBookings.find(x=>x.id===id); if (s) s.status='Cancelled'; saveStore('ehmr_service_bookings', serviceBookings); addAudit('UPDATE','service_booking',`${id} cancelled`); loadServices(); toast('Service cancelled'); }
+async function confirmService(id) {
+  const s = serviceBookings.find(b => b.id === id);
+  if (!s) return;
+  s.status = 'Confirmed';
+  s.accessed = true;
+  saveStore('ehmr_service_bookings', serviceBookings);
+  await updateBookingStatusAPI(id, 'Confirmed');
+  addAudit('UPDATE', 'services', `Service ${id} confirmed`);
+  toast('Service confirmed');
+  loadLedgerResources();
+  if (_currentPage === 'services') loadServices();
+}
+async function rejectService(id) {
+  const s = serviceBookings.find(b => b.id === id);
+  if (!s) return;
+  s.status = 'Rejected';
+  saveStore('ehmr_service_bookings', serviceBookings);
+  await updateBookingStatusAPI(id, 'Rejected');
+  addAudit('UPDATE', 'services', `Service ${id} rejected`);
+  toast('Service rejected');
+  loadLedgerResources();
+  if (_currentPage === 'services') loadServices();
+}
 function completeService(id) { const s = serviceBookings.find(x=>x.id===id); if (s) s.status='Completed'; saveStore('ehmr_service_bookings', serviceBookings); addAudit('UPDATE','service_booking',`${id} completed`); loadDash(); toast('Service marked complete'); }
 
 function markDoseGiven(resId, medId, doseId) {
