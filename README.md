@@ -104,8 +104,8 @@ On the login page, select a role card before signing in:
 
 **1. Clone and install**
 ```bash
-git clone https://github.com/<your-username>/hospital-bed-appointment-booking-system
-cd hospital-bed-appointment-booking-system
+git clone https://github.com/humbeaniket2006-max/My_EHMR.git
+cd My_EHMR
 npm install
 ```
 
